@@ -3,10 +3,7 @@ Reproducible Research
 
 # Peer Assessment 1
 
-```{r setoptions,echo=FALSE}
-library(knitr)
-opts_chunk$set(echo = TRUE, message=F, warning=F)
-```
+
 
 ## Introduction
 
@@ -52,7 +49,8 @@ dataset.
 
 Download the data in a Windows 10 computer.
 
-```{r downloadData}
+
+```r
 fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 fileZip <- "data_activity.zip"
 file <- "activity.csv"
@@ -107,7 +105,8 @@ Show any code that is needed to
 
 2. Process/transform the data (if necessary) into a format suitable for your analysis
 
-```{r loadingData,echo=TRUE}
+
+```r
 datos <- read.csv(file, header=TRUE,na.strings="NA")
 ```
 
@@ -120,23 +119,28 @@ the dataset.
 
 2. Calculate and report the **mean** and **median** total number of steps taken per day
 
-```{r histrogramSteps,echo=TRUE}
+
+```r
 totalStepsPerDay <- aggregate(steps ~ date, data = datos, FUN = sum)
 
 hist(totalStepsPerDay$steps,breaks=10,main="Total Steps Per Day", xlab=NA, col="gray")
 ```
 
-```{r meanTotalStepsPerDay,echo=TRUE}
+![plot of chunk histrogramSteps](figure/histrogramSteps-1.png) 
+
+
+```r
 meanTSPD <- prettyNum(mean(totalStepsPerDay$steps))
 ```
 
-**Mean** of total steps per day **`r meanTSPD`**
+**Mean** of total steps per day **10766.19**
 
-```{r medianTotalStepsPerDay,echo=TRUE}
+
+```r
 medianTSPD <- prettyNum(median(totalStepsPerDay$steps))
 ```
 
-**Median** of total steps per day **`r medianTSPD`**
+**Median** of total steps per day **10765**
 
 ## What is the average daily activity pattern?
 
@@ -144,17 +148,21 @@ medianTSPD <- prettyNum(median(totalStepsPerDay$steps))
 
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r timeSeriesAverageSteps,echo=TRUE}
+
+```r
 averageStepsPerInterval <- aggregate(steps ~ interval, data = datos, FUN = mean)
 
 plot(averageStepsPerInterval$interval,averageStepsPerInterval$steps,type="l", main="Average Steps per Interval of 5 minutes",xlab ="Interval",ylab="Average")
 ```
 
-```{r intervalWithMaximum,echo=TRUE}
+![plot of chunk timeSeriesAverageSteps](figure/timeSeriesAverageSteps-1.png) 
+
+
+```r
 maxInterval <- averageStepsPerInterval[which(averageStepsPerInterval$steps ==  max(averageStepsPerInterval$steps)),1]
 ```
 
-The 5-minute interval with the **maximum average** number of steps is **`r maxInterval`**
+The 5-minute interval with the **maximum average** number of steps is **835**
 
 ## Imputing missing values
 
@@ -172,16 +180,18 @@ The strategy does not need to be sophisticated. For example, you could use the m
 4. Make a histogram of the total number of steps taken each day and Calculate
 and report the **mean** and **median** total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r rowsWithNA,echo=TRUE}
+
+```r
 rowsWithNA <- sum(is.na(datos$steps))
 ```
 
-**Total** number of rows with `NA`s is **`r rowsWithNA`**
+**Total** number of rows with `NA`s is **2304**
 
 My strategy for filling in all of the missing values in the dataset will use the
 average between the means of the day and of the interval.
 
-```{r fillingNA,echo=TRUE,cache=TRUE}
+
+```r
 datosWithoutNA = datos
 
 for (i in 1:dim(datosWithoutNA)[1]){
@@ -205,30 +215,35 @@ for (i in 1:dim(datosWithoutNA)[1]){
 }
 ```
 
-```{r histrogramStepsWithoutNA,echo=TRUE}
+
+```r
 totalStepsPerDayWithoutNA <- aggregate(steps ~ date, data = datosWithoutNA,
                                        FUN = sum)
 
 hist(totalStepsPerDayWithoutNA$steps,breaks=10,main="Total Steps Per Day *", xlab=NA, col="gray")
 ```
 
-```{r meanTotalStepsPerDayWithoutNA,echo=TRUE}
+![plot of chunk histrogramStepsWithoutNA](figure/histrogramStepsWithoutNA-1.png) 
+
+
+```r
 meanTSPDWithoutNA <- prettyNum(mean(totalStepsPerDayWithoutNA$steps))
 meanDifference <- prettyNum(as.numeric(meanTSPDWithoutNA) -
                               as.numeric(meanTSPD))
 ```
 
-**Mean** of total steps per day **`r meanTSPDWithoutNA`**  
-The difference with the mean of data with `NA` is `r meanDifference`
+**Mean** of total steps per day **10060.21**  
+The difference with the mean of data with `NA` is -705.98
 
-```{r medianTotalStepsPerDayWithoutNA,echo=TRUE}
+
+```r
 medianTSPDWithoutNA <- prettyNum(median(totalStepsPerDayWithoutNA$steps))
 medianDifference <- prettyNum(as.numeric(medianTSPDWithoutNA) -
                                 as.numeric(medianTSPD))
-``` 
+```
 
-**Median** of total steps per day **`r medianTSPDWithoutNA`**  
-The difference with the median of data with `NA` is `r medianDifference`
+**Median** of total steps per day **10395**  
+The difference with the median of data with `NA` is -370
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
@@ -240,7 +255,8 @@ the dataset with the filled-in missing values for this part.
 2. Make a panel plot containing a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged
 across all weekday days or weekend days (y-axis).
 
-```{r weekdays,echo=TRUE,cache=TRUE}
+
+```r
 isWeekend <- function(x){
   retorno <- "weekday"
   if(x == "Sunday" | x == "Saturday") {
@@ -252,7 +268,8 @@ isWeekend <- function(x){
 datosWithoutNA$day <- as.factor(apply(datosWithoutNA, 1, FUN = function(x) isWeekend(weekdays(as.Date(x[2])))))
 ```
 
-```{r plotWeekday,echo=TRUE,cache=FALSE}
+
+```r
 intervalWeekday <- aggregate(steps ~ interval, data = datosWithoutNA[ which(datosWithoutNA$day == "weekday"),1:3], FUN = mean)
 intervalWeekday$day <- "Weekday"
 
@@ -264,3 +281,5 @@ all <- rbind(intervalWeekend, intervalWeekday)
 library(ggplot2)
 qplot(interval,steps,data=all,facets=day~.,geom="line",xlab="5-minute interval",ylab="Average steps")
 ```
+
+![plot of chunk plotWeekday](figure/plotWeekday-1.png) 
